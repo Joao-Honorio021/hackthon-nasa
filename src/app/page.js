@@ -3,7 +3,7 @@ import Menu from "./components/Menu.jsx";
 import Heading from "./components/heading.jsx";
 export default function Home() {
   return (
-    <div className="">
+    <div>
       <Menu />
       <Heading />
       <main className="p-4"></main>
