@@ -1,8 +1,26 @@
 @import "tailwindcss";
-body {
-  @apply bg-slate-900 text-white;
 
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
+.animate-twinkle {
+  animation: twinkle ease-in-out infinite;
+}
+
+body {
+  background-color: rgb(15, 23, 42);
+  color: white;
   background-repeat: no-repeat;
   background-size: cover;
-  background-attachment: fixed; /* deixa o gradiente "grudado" */
+  background-attachment: fixed;
+  overflow-x: hidden;
 }

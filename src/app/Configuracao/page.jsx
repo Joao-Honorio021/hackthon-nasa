@@ -1,67 +1,90 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // importa o hook
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useTheme } from "../contexts/ThemeContext";
 
-export default function ConfiguracaoPage() {
+export default function PaginaConfiguracao() {
   const router = useRouter();
+  const { cores, atualizarTema } = useTheme();
 
-  // pega valores do localStorage ou usa padrão
-  const [idade, setIdade] = useState(() => localStorage.getItem("idade") || "");
-  const [tipoDaltonismo, setTipoDaltonismo] = useState(
-    () => localStorage.getItem("tipoDaltonismo") || ""
-  );
-  const [daltonico, setDaltonico] = useState(
-    () => localStorage.getItem("daltonico") === "true"
-  );
+  // Inicializa estados com valores vazios
+  const [idade, definirIdade] = useState("");
+  const [tipoDaltonismo, definirTipoDaltonismo] = useState("");
+  const [daltonico, definirDaltonico] = useState(false);
+  const [carregado, definirCarregado] = useState(false);
 
-  // salva sempre que mudar
+  // Carrega dados do localStorage apenas uma vez após a montagem do componente
   useEffect(() => {
-    localStorage.setItem("idade", idade);
-  }, [idade]);
+    if (typeof window !== "undefined") {
+      definirIdade(localStorage.getItem("idade") || "");
+      definirTipoDaltonismo(localStorage.getItem("tipoDaltonismo") || "");
+      definirDaltonico(localStorage.getItem("daltonico") === "true");
+      definirCarregado(true);
+    }
+  }, []);
+
+  // Efeitos para salvar mudanças automaticamente
+  useEffect(() => {
+    if (carregado) {
+      localStorage.setItem("idade", idade);
+    }
+  }, [idade, carregado]);
 
   useEffect(() => {
-    localStorage.setItem("tipoDaltonismo", tipoDaltonismo);
-  }, [tipoDaltonismo]);
+    if (carregado) {
+      localStorage.setItem("tipoDaltonismo", tipoDaltonismo);
+      atualizarTema?.();
+    }
+  }, [tipoDaltonismo, carregado, atualizarTema]);
 
   useEffect(() => {
-    localStorage.setItem("daltonico", daltonico);
-  }, [daltonico]);
+    if (carregado) {
+      localStorage.setItem("daltonico", daltonico.toString());
+      atualizarTema?.();
+    }
+  }, [daltonico, carregado, atualizarTema]);
 
   // função pra salvar e redirecionar
-  const handleSave = (e) => {
-    e.preventDefault(); // evita reload
-    router.push("/"); // redireciona pra home
+  const salvarConfiguracao = (e) => {
+    e.preventDefault();
+    router.push("/");
   };
 
+  // Não renderiza nada até os dados serem carregados do localStorage
+  if (!carregado) {
+    return null;
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-black">
+    <div
+      className={`flex min-h-screen items-center justify-center ${cores.background}`}
+    >
       <div className="w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-center text-cyan-300 mb-6">
+        <h1 className={`text-2xl font-bold text-center ${cores.accent} mb-6`}>
           Configurações
         </h1>
 
-        <form onSubmit={handleSave} className="space-y-4">
+        <form onSubmit={salvarConfiguracao} className="space-y-4">
           {/* Idade */}
           <div>
             <label className="block text-gray-200 mb-1">Idade</label>
             <input
               type="number"
               value={idade}
-              onChange={(e) => setIdade(e.target.value)}
+              onChange={(e) => definirIdade(e.target.value)}
               placeholder="Digite sua idade"
               className="w-full p-2 rounded-lg bg-gray-900/50 text-white border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400/30"
             />
           </div>
 
-          {/* Tipo de Daltonismo */}
           <div>
             <label className="block text-gray-200 mb-1">
               Tipo de Daltonismo
             </label>
             <select
               value={tipoDaltonismo}
-              onChange={(e) => setTipoDaltonismo(e.target.value)}
+              onChange={(e) => definirTipoDaltonismo(e.target.value)}
               className="w-full p-2 rounded-lg bg-gray-900/50 text-white border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400/30"
             >
               <option value="">Selecione</option>
@@ -72,12 +95,11 @@ export default function ConfiguracaoPage() {
             </select>
           </div>
 
-          {/* Toggle Modo Daltônico */}
           <div className="flex items-center justify-between">
             <label className="text-gray-200">Ativar Modo Daltônico</label>
             <button
               type="button"
-              onClick={() => setDaltonico(!daltonico)}
+              onClick={() => definirDaltonico(!daltonico)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
                 daltonico ? "bg-cyan-400" : "bg-gray-600"
               }`}
@@ -90,7 +112,6 @@ export default function ConfiguracaoPage() {
             </button>
           </div>
 
-          {/* Botão */}
           <button
             type="submit"
             className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-700 to-cyan-600 text-white font-semibold hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30 transition-transform duration-300"
@@ -99,7 +120,6 @@ export default function ConfiguracaoPage() {
           </button>
         </form>
 
-        {/* Preview */}
         <div
           className={`mt-6 p-4 rounded-lg text-center font-semibold ${
             daltonico ? "bg-yellow-200 text-black" : "bg-purple-700 text-white"

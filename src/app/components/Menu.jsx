@@ -1,46 +1,53 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link"; // ✅ Importa o Link do Next
+import Link from "next/link";
 import { DiAptana } from "react-icons/di";
+import { useTheme } from "../contexts/ThemeContext";
 
 const Menu = () => {
-  const [hoveredItem, setHoveredItem] = useState(null);
+  const [itemHover, definirItemHover] = useState(null);
+  const { cores } = useTheme();
 
-  // 1. Separe o item "configuração" dos itens principais do menu
-  const mainMenuItems = [
-    { name: "Home", href: "#" },
-    { name: "Qualquer coisa", href: "#" },
-    { name: "blaba", href: "#" },
-    { name: "vlabla", href: "#" },
-    { name: "blabla", href: "#" },
+  const itensMenuPrincipal = [
+    { nome: "Início", href: "#" },
+    { nome: "Qualquer coisa", href: "#" },
+    { nome: "blaba", href: "#" },
+    { nome: "vlabla", href: "#" },
+    { nome: "blabla", href: "#" },
   ];
-  const settingsItem = { name: "Configuração", href: "/Configuracao" }; // ✅ já aponta para a página
+  const itemConfiguracao = { nome: "Configuração", href: "/configuracao" }; // ✅ já aponta para a página
 
   return (
-    // 2. Adicione `flex flex-col` para criar um layout de coluna flexível
     <aside
-      className=" fixed top-0 left-0 h-screen
+      className={`fixed top-0 left-0 h-screen
                       w-56 sm:w-54 md:w-52 lg:w-60
                       bg-slate-900/60 backdrop-blur-md
-                      p-6 text-white overflow-hidden z-50
-                      flex flex-col"
+                      p-6 overflow-hidden z-50
+                      flex flex-col ${cores.text}`}
     >
       {" "}
-      {/* <-- MUDANÇA AQUI */}
-      {/* Estrelas e Bolinhas (código original mantido) */}
+      {/* Estrelas e Bolinhas  */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: Math.random() * 0.8 + 0.2,
-            }}
-          />
-        ))}
+        {[...Array(30)].map((_, i) => {
+          // Usando valores determinísticos baseados no índice
+          const left = `${((Math.sin(i * 0.7) + 1) * 50).toFixed(2)}%`;
+          const top = `${((Math.cos(i * 0.5) + 1) * 50).toFixed(2)}%`;
+          const delay = `${((i * 0.1) % 3).toFixed(2)}s`;
+          const opacity = (((Math.sin(i) + 1) / 2) * 0.8 + 0.2).toFixed(2);
+
+          return (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+              style={{
+                left,
+                top,
+                animationDelay: delay,
+                opacity,
+              }}
+            />
+          );
+        })}
       </div>
       <div
         className="absolute top-10 right-4 w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-300 rounded-full opacity-60 animate-bounce"
@@ -54,41 +61,38 @@ const Menu = () => {
         className="absolute bottom-20 right-2 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-300 rounded-full opacity-70 animate-bounce"
         style={{ animationDuration: "5s", animationDelay: "2s" }}
       />
-      {/* Container para o conteúdo do topo (logo e menu principal) */}
       <div className="relative z-10">
         <div className="block mb-12 text-center">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-300 to-purple-300 bg-clip-text text-transparent">
-            Nome Projeto
-          </h2>
+          <h2 className={`text-xl font-bold ${cores.accent}`}>Nome Projeto</h2>
         </div>
 
         {/* Menu Principal */}
         <nav>
           <ul className="space-y-4">
-            {mainMenuItems.map((item, index) => (
+            {itensMenuPrincipal.map((item, index) => (
               <li key={index}>
                 <a
                   href={item.href}
                   className={`group flex items-center space-x-4 p-4 rounded-lg transition-all duration-300 transform
                     hover:scale-105 hover:bg-gradient-to-r hover:from-purple-800/50 hover:to-cyan-800/50
                     hover:shadow-lg hover:shadow-cyan-500/25 ${
-                      hoveredItem === index
+                      itemHover === index
                         ? "bg-gradient-to-r from-purple-800/30 to-cyan-800/30"
                         : ""
                     }`}
-                  onMouseEnter={() => setHoveredItem(index)}
-                  onMouseLeave={() => setHoveredItem(null)}
+                  onMouseEnter={() => definirItemHover(index)}
+                  onMouseLeave={() => definirItemHover(null)}
                 >
                   <span
                     className={`text-lg font-medium transition-all duration-300 ${
-                      hoveredItem === index
+                      itemHover === index
                         ? "text-cyan-300 translate-x-1"
                         : "text-gray-200"
                     }`}
                   >
-                    {item.name}
+                    {item.nome}
                   </span>
-                  {hoveredItem === index && (
+                  {itemHover === index && (
                     <div className="ml-auto">
                       <div className="w-2 h-2 bg-cyan-300 rounded-full animate-pulse" />
                     </div>
@@ -99,25 +103,22 @@ const Menu = () => {
           </ul>
         </nav>
       </div>
-      {/* 3. Crie um container para o item de rodapé. `mt-auto` o empurra para baixo */}
       <div className="mt-auto relative z-10">
         {" "}
-        {/* <-- MUDANÇA AQUI */}
         <nav>
           <ul>
-            {/* Item de Configuração */}
             <li>
               <Link
-                href={settingsItem.href} // ✅ agora usa Link
+                href={itemConfiguracao.href} // ✅ agora usa Link
                 className={`group flex items-center space-x-4 p-4 rounded-lg transition-all duration-300 transform 
     hover:scale-105 hover:bg-gradient-to-r hover:from-purple-800/50 hover:to-cyan-800/50 
     hover:shadow-lg hover:shadow-cyan-500/25 ${
-      hoveredItem === "settings"
+      itemHover === "configuracao"
         ? "bg-gradient-to-r from-purple-800/30 to-cyan-800/30"
         : ""
     }`}
-                onMouseEnter={() => setHoveredItem("settings")}
-                onMouseLeave={() => setHoveredItem(null)}
+                onMouseEnter={() => definirItemHover("configuracao")}
+                onMouseLeave={() => definirItemHover(null)}
               >
                 {/* Ícone separado */}
                 <span className="text-xl text-gray-200 group-hover:text-cyan-300 transition-colors duration-300">
@@ -127,16 +128,15 @@ const Menu = () => {
                 {/* Texto */}
                 <span
                   className={`text-lg font-medium transition-all duration-300 ${
-                    hoveredItem === "settings"
+                    itemHover === "configuracao"
                       ? "text-cyan-300 translate-x-1"
                       : "text-gray-200"
                   }`}
                 >
-                  {settingsItem.name}
+                  {itemConfiguracao.nome}
                 </span>
 
-                {/* Pontinho animado */}
-                {hoveredItem === "settings" && (
+                {itemHover === "configuracao" && (
                   <div className="ml-auto">
                     <div className="w-2 h-2 bg-cyan-300 rounded-full animate-pulse" />
                   </div>
