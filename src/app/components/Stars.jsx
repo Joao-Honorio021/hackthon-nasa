@@ -7,7 +7,6 @@ const Stars = ({ count = 100 }) => {
   const [stars, setStars] = useState([]);
 
   useEffect(() => {
-    // Gera estrelas com posições e tamanhos diferentes
     const generateStars = () => {
       return Array.from({ length: count }, (_, i) => ({
         id: i,
