@@ -89,7 +89,6 @@ const Card = ({
         </button>
       </div>
 
-      {/* Efeito de borda brilhante */}
       <div
         className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 
                    hover:opacity-100 transition-opacity duration-300"

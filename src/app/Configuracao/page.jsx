@@ -8,13 +8,13 @@ export default function PaginaConfiguracao() {
   const router = useRouter();
   const { cores, atualizarTema } = useTheme();
 
-  // Inicializa estados com valores vazios
+
   const [idade, definirIdade] = useState("");
   const [tipoDaltonismo, definirTipoDaltonismo] = useState("");
   const [daltonico, definirDaltonico] = useState(false);
   const [carregado, definirCarregado] = useState(false);
 
-  // Carrega dados do localStorage apenas uma vez após a montagem do componente
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       definirIdade(localStorage.getItem("idade") || "");
@@ -24,7 +24,7 @@ export default function PaginaConfiguracao() {
     }
   }, []);
 
-  // Efeitos para salvar mudanças automaticamente
+
   useEffect(() => {
     if (carregado) {
       localStorage.setItem("idade", idade);
@@ -45,13 +45,12 @@ export default function PaginaConfiguracao() {
     }
   }, [daltonico, carregado, atualizarTema]);
 
-  // função pra salvar e redirecionar
+ 
   const salvarConfiguracao = (e) => {
     e.preventDefault();
     router.push("/");
   };
 
-  // Não renderiza nada até os dados serem carregados do localStorage
   if (!carregado) {
     return null;
   }
