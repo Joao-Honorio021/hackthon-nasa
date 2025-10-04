@@ -40,7 +40,7 @@ const Menu = () => {
     { nome: "vlabla", href: "#" },
     { nome: "blabla", href: "#" },
   ];
-  const itemConfiguracao = { nome: "Configuração", href: "/configuracao" };
+  const itemConfiguracao = { nome: "Configuração", href: "/Pages/Configuracao" };
 
   const toggleMenu = () => {
     setMenuAberto(!menuAberto);

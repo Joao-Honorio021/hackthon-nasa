@@ -72,7 +72,7 @@ const Card = ({
           {description}
         </p>
 
-        <Link href="/Video">
+        <Link href="./Pages/Video" className="block w-full">
           <button
             className="w-full py-2 px-3 sm:px-4 rounded-lg text-sm font-medium 
              transition-all duration-200 hover:shadow-md active:scale-95"

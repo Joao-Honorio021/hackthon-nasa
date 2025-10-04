@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "@/app/contexts/ThemeContext"
 
 export default function PaginaConfiguracao() {
   const router = useRouter();
