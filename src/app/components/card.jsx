@@ -6,7 +6,7 @@ import Link from "next/link";
 const Card = ({
   title = "Livro Exemplo",
   description = "Uma breve descrição do livro que captura a essência da história.",
-  image = "card.jpg",
+  image = "",
   rating = 4.5,
   className = "",
 }) => {
