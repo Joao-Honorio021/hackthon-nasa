@@ -1,6 +1,7 @@
 "use client";
 import { useTheme } from "../contexts/ThemeContext";
 import Stars from "./Stars.jsx";
+import Link from "next/link";
 
 const Card = ({
   title = "Livro Exemplo",
@@ -60,7 +61,7 @@ const Card = ({
             className="text-xs sm:text-sm font-medium"
             style={{ color: cores.menuActive }}
           >
-            {rating}/5
+
           </span>
         </div>
 
@@ -71,22 +72,24 @@ const Card = ({
           {description}
         </p>
 
-        <button
-          className="w-full py-2 px-3 sm:px-4 rounded-lg text-sm font-medium 
-                   transition-all duration-200 hover:shadow-md active:scale-95"
-          style={{
-            background: cores.buttonGradient,
-            color: cores.text,
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "translateY(-1px)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "translateY(0)";
-          }}
-        >
-          Ver Detalhes
-        </button>
+        <Link href="/Video">
+          <button
+            className="w-full py-2 px-3 sm:px-4 rounded-lg text-sm font-medium 
+             transition-all duration-200 hover:shadow-md active:scale-95"
+            style={{
+              background: cores.buttonGradient,
+              color: cores.text,
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "translateY(0)";
+            }}
+          >
+            Ver Detalhes
+          </button>
+        </Link>
       </div>
 
       <div

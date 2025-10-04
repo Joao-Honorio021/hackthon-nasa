@@ -12,7 +12,7 @@ export default function Home() {
     <div className={`min-h-screen ${cores.background}`}>
       <Stars count={150} />
       <Menu />
-      <Heading />
+      <Heading>Nasa</Heading>
 
       <main
         className="p-4 relative z-10 top-20 transition-all duration-500

@@ -1,7 +1,7 @@
 "use client";
 import { useTheme } from "../contexts/ThemeContext";
 
-const Heading = () => {
+const Heading = ({ children, className = "" }) => {
   const { cores } = useTheme();
 
   return (
@@ -11,7 +11,7 @@ const Heading = () => {
                  md:pl-[320px] md:pr-8
                  ${cores.text} z-20`}
     >
-      <h1 className={`text-center ${cores.accent}`}>NASA Hackathon</h1>
+      <h1 className={`text-center ${cores.accent}`}>{children}</h1>
     </header>
   );
 };
