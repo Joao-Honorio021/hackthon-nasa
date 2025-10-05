@@ -34,11 +34,10 @@ const Menu = () => {
   }, [menuAberto, mounted]);
 
   const itensMenuPrincipal = [
-    { nome: "Início", href: "#" },
-    { nome: "Qualquer coisa", href: "#" },
+    { nome: "Início", href: "/" },
+    { nome: "Catalogo", href: "/Pages/Catalogo" },
     { nome: "blaba", href: "#" },
-    { nome: "vlabla", href: "#" },
-    { nome: "blabla", href: "#" },
+   
   ];
   const itemConfiguracao = { nome: "Configuração", href: "/Pages/Configuracao" };
 

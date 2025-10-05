@@ -8,6 +8,7 @@ const Card = ({
   description = "Uma breve descrição do livro que captura a essência da história.",
   image = "",
   rating = 4.5,
+  detailsPath = "./Pages/Video",
   className = "",
 }) => {
   const { cores } = useTheme();
@@ -72,7 +73,7 @@ const Card = ({
           {description}
         </p>
 
-        <Link href="./Pages/Video" className="block w-full">
+        <Link href={detailsPath} className="block w-full">
           <button
             className="w-full py-2 px-3 sm:px-4 rounded-lg text-sm font-medium 
              transition-all duration-200 hover:shadow-md active:scale-95"

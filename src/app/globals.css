@@ -24,3 +24,25 @@ body {
   background-attachment: fixed;
   overflow-x: hidden;
 }
+a {
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+::-webkit-scrollbar-track:hover {
+  background-color: transparent;
+}
+
+

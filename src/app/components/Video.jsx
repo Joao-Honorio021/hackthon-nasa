@@ -8,12 +8,15 @@ import {
   FaExpand, 
   FaCompress,
   FaEye,
-  FaTimes
+  FaTimes,
+  FaCog
 } from 'react-icons/fa';
 import { IoMdSettings } from 'react-icons/io';
+import { MdHighQuality } from 'react-icons/md';
 
 export default function VideoTelaCheia({
-  urlVideo = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  cloudinaryId = "samples/sea-turtle",
+  cloudName = "demo",
   videosDaltonismo = {}
 }) {
   const [estaRodando, setEstaRodando] = useState(false);
@@ -26,6 +29,9 @@ export default function VideoTelaCheia({
   const [duracao, setDuracao] = useState(0);
   const [volume, setVolume] = useState(100);
   const [mostrarMenuDaltonismo, setMostrarMenuDaltonismo] = useState(false);
+  const [mostrarMenuQualidade, setMostrarMenuQualidade] = useState(false);
+  const [qualidadeSelecionada, setQualidadeSelecionada] = useState("auto");
+  const [estaCarregando, setEstaCarregando] = useState(false);
   
   const videoRef = useRef(null);
   const containerRef = useRef(null);
@@ -38,6 +44,50 @@ export default function VideoTelaCheia({
     { valor: "acromatopsia", label: "Acromatopsia", descricao: "Visão em preto e branco" }
   ];
 
+  const opcoesQualidade = [
+    { 
+      valor: "auto", 
+      label: "Auto", 
+      descricao: "Ajuste automático",
+      cloudinaryParams: "q_auto"
+    },
+    { 
+      valor: "2160p", 
+      label: "2160p (4K)", 
+      descricao: "Ultra HD",
+      cloudinaryParams: "h_2160,q_auto:best"
+    },
+    { 
+      valor: "1080p", 
+      label: "1080p", 
+      descricao: "Full HD",
+      cloudinaryParams: "h_1080,q_auto:good"
+    },
+    { 
+      valor: "720p", 
+      label: "720p", 
+      descricao: "HD",
+      cloudinaryParams: "h_720,q_auto:good"
+    },
+    { 
+      valor: "480p", 
+      label: "480p", 
+      descricao: "SD",
+      cloudinaryParams: "h_480,q_auto:low"
+    },
+    { 
+      valor: "360p", 
+      label: "360p", 
+      descricao: "Baixa",
+      cloudinaryParams: "h_360,q_auto:low"
+    }
+  ];
+
+  const gerarUrlCloudinary = (qualidade) => {
+    const opcao = opcoesQualidade.find(q => q.valor === qualidade);
+    const params = opcao ? opcao.cloudinaryParams : "q_auto";
+    return `https://res.cloudinary.com/${cloudName}/video/upload/${params}/${cloudinaryId}.mp4`;
+  };
 
   const aoMoverMouse = () => {
     setMostrarControles(true);
@@ -48,6 +98,7 @@ export default function VideoTelaCheia({
       if (estaRodando) {
         setMostrarControles(false);
         setMostrarMenuDaltonismo(false);
+        setMostrarMenuQualidade(false);
       }
     }, 10000);
   };
@@ -61,12 +112,29 @@ export default function VideoTelaCheia({
     setDaltonico(!daltonico);
   };
 
+  const mudarQualidade = (qualidade) => {
+    const video = videoRef.current;
+    if (video) {
+      const tempoAtualSalvo = video.currentTime;
+      const estavaTocando = !video.paused;
+      
+      setQualidadeSelecionada(qualidade);
+      setMostrarMenuQualidade(false);
+      
+      setTimeout(() => {
+        video.currentTime = tempoAtualSalvo;
+        if (estavaTocando) {
+          video.play();
+        }
+      }, 100);
+    }
+  };
+
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
-      video.play()
-        .then(() => setEstaRodando(true))
-        .catch((erro) => console.log('Autoplay bloqueado:', erro));
+      // Apenas carrega o vídeo, não toca automaticamente
+      video.load();
     }
   }, []);
 
@@ -76,13 +144,21 @@ export default function VideoTelaCheia({
 
     const atualizarTempo = () => setTempoAtual(video.currentTime);
     const atualizarDuracao = () => setDuracao(video.duration);
+    const aoIniciarCarregamento = () => setEstaCarregando(true);
+    const aoTerminarCarregamento = () => setEstaCarregando(false);
 
     video.addEventListener('timeupdate', atualizarTempo);
     video.addEventListener('loadedmetadata', atualizarDuracao);
+    video.addEventListener('waiting', aoIniciarCarregamento);
+    video.addEventListener('canplay', aoTerminarCarregamento);
+    video.addEventListener('playing', aoTerminarCarregamento);
 
     return () => {
       video.removeEventListener('timeupdate', atualizarTempo);
       video.removeEventListener('loadedmetadata', atualizarDuracao);
+      video.removeEventListener('waiting', aoIniciarCarregamento);
+      video.removeEventListener('canplay', aoTerminarCarregamento);
+      video.removeEventListener('playing', aoTerminarCarregamento);
     };
   }, []);
 
@@ -150,7 +226,7 @@ export default function VideoTelaCheia({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  let videoSrc = urlVideo;
+  let videoSrc = gerarUrlCloudinary(qualidadeSelecionada);
   if (daltonico && tipoDaltonismo && videosDaltonismo[tipoDaltonismo]) {
     videoSrc = videosDaltonismo[tipoDaltonismo];
   } else if (!daltonico && videosDaltonismo.normal) {
@@ -180,16 +256,86 @@ export default function VideoTelaCheia({
         playsInline
         src={videoSrc}
         onClick={alternarPlayPause}
+        key={videoSrc}
       />
 
       {/* Indicador de play/pause no centro */}
-      {!estaRodando && (
+      {!estaRodando && !estaCarregando && (
         <div 
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ transition: 'opacity 0.3s' }}
         >
           <div className="bg-black/70 rounded-full p-8 backdrop-blur-sm">
             <FaPlay className="text-white text-6xl ml-2" />
+          </div>
+        </div>
+      )}
+
+      {/* Indicador de loading */}
+      {estaCarregando && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{ transition: 'opacity 0.3s' }}
+        >
+          <div className="bg-black/70 rounded-full p-8 backdrop-blur-sm">
+            <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        </div>
+      )}
+
+      {/* Menu de Qualidade */}
+      {mostrarMenuQualidade && (
+        <div
+          className="absolute bottom-24 right-6 bg-gray-900/95 backdrop-blur-md rounded-lg shadow-2xl border border-gray-700 overflow-hidden"
+          style={{ minWidth: '280px' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MdHighQuality className="text-blue-400 text-xl" />
+              <h3 className="text-white font-semibold">Qualidade do Vídeo</h3>
+            </div>
+            <button
+              onClick={() => setMostrarMenuQualidade(false)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <FaTimes />
+            </button>
+          </div>
+          
+          <div className="p-3 space-y-1">
+            {opcoesQualidade.map((opcao) => (
+              <button
+                key={opcao.valor}
+                onClick={() => mudarQualidade(opcao.valor)}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all relative overflow-hidden ${
+                  qualidadeSelecionada === opcao.valor
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-800 text-white hover:bg-gray-700"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{opcao.label}</div>
+                    <div className={`text-xs mt-0.5 ${
+                      qualidadeSelecionada === opcao.valor ? "text-white/80" : "text-gray-400"
+                    }`}>
+                      {opcao.descricao}
+                    </div>
+                  </div>
+                  {qualidadeSelecionada === opcao.valor && (
+                    <div className="text-lg ml-2">✓</div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="px-4 py-3 bg-gray-800/50 border-t border-gray-700">
+            <p className="text-xs text-gray-400 flex items-center gap-2">
+              <span>⚡</span>
+              <span>Powered by Cloudinary</span>
+            </p>
           </div>
         </div>
       )}
@@ -236,7 +382,7 @@ export default function VideoTelaCheia({
                   key={tipo.valor}
                   onClick={() => selecionarTipoDaltonismo(tipo.valor)}
                   disabled={!daltonico}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all relative overflow-hidden ${
                     tipoDaltonismo === tipo.valor && daltonico
                       ? "bg-yellow-500 text-black"
                       : daltonico
@@ -244,11 +390,30 @@ export default function VideoTelaCheia({
                       : "bg-gray-800/50 text-gray-500 cursor-not-allowed"
                   }`}
                 >
-                  <div className="font-medium text-sm">{tipo.label}</div>
-                  <div className={`text-xs mt-0.5 ${
-                    tipoDaltonismo === tipo.valor && daltonico ? "text-black/70" : "text-gray-400"
-                  }`}>
-                    {tipo.descricao}
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
+                      tipoDaltonismo === tipo.valor && daltonico
+                        ? "bg-black/10"
+                        : daltonico
+                        ? "bg-gray-700"
+                        : "bg-gray-700/50"
+                    }`}>
+                      {tipo.valor === "deuteranopia" && "🟢"}
+                      {tipo.valor === "protanopia" && "🔴"}
+                      {tipo.valor === "tritanopia" && "🔵"}
+                      {tipo.valor === "acromatopsia" && "⚫"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{tipo.label}</div>
+                      <div className={`text-xs mt-0.5 ${
+                        tipoDaltonismo === tipo.valor && daltonico ? "text-black/70" : "text-gray-400"
+                      }`}>
+                        {tipo.descricao}
+                      </div>
+                    </div>
+                    {tipoDaltonismo === tipo.valor && daltonico && (
+                      <div className="text-lg">✓</div>
+                    )}
                   </div>
                 </button>
               ))}
@@ -257,7 +422,6 @@ export default function VideoTelaCheia({
         </div>
       )}
 
-    
       <div
         className={`absolute bottom-0 left-0 right-0 transition-all duration-500 ${
           mostrarControles ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
@@ -279,7 +443,6 @@ export default function VideoTelaCheia({
           />
         </div>
 
-      
         <div className="bg-gradient-to-t from-black/95 via-black/85 to-transparent px-6 pb-6 pt-4">
           <div className="flex items-center gap-4">
             {/* Play/Pause */}
@@ -328,10 +491,27 @@ export default function VideoTelaCheia({
 
             <div className="flex-1" />
 
+            {/* Botão de Qualidade */}
+            <button
+              onClick={() => {
+                setMostrarMenuQualidade(!mostrarMenuQualidade);
+                setMostrarMenuDaltonismo(false);
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <MdHighQuality className="text-xl" />
+              <span className="text-sm font-medium">
+                {opcoesQualidade.find(q => q.valor === qualidadeSelecionada)?.label}
+              </span>
+            </button>
+
             {/* Botão de Configurações de Daltonismo */}
             <button
-              onClick={() => setMostrarMenuDaltonismo(!mostrarMenuDaltonismo)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+              onClick={() => {
+                setMostrarMenuDaltonismo(!mostrarMenuDaltonismo);
+                setMostrarMenuQualidade(false);
+              }}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
                 daltonico
                   ? "bg-yellow-500 text-black hover:bg-yellow-400"
                   : "bg-white/10 text-white hover:bg-white/20"
@@ -341,7 +521,12 @@ export default function VideoTelaCheia({
               <span className="text-sm font-medium">
                 {daltonico ? tiposDaltonismo.find(t => t.valor === tipoDaltonismo)?.label : "Acessibilidade"}
               </span>
-              <IoMdSettings className="text-lg" />
+              {daltonico && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-400"></span>
+                </span>
+              )}
             </button>
 
             {/* Tela cheia */}

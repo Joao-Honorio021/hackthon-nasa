@@ -19,7 +19,7 @@ export default function Home() {
              md:ml-[300px] lg:ml-[320px]
              sm:p-6 md:p-8"
       >
-        <Card />
+     
       </main>
     </div>
   );
