@@ -20,7 +20,7 @@ const Catalogo = () => {
       id: 1,
       titulo: "Parte 1",
       descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      imagem: "/card.jpg",
+      imagem: "/card2.jpg",
       detailsPath: "./Video"
     },
     {
@@ -34,7 +34,7 @@ const Catalogo = () => {
       id: 3,
       titulo: "Parte 3",
       descricao: "ryrhrhfhfh",
-      imagem: "/card.jpg",
+      imagem: "/card3.png",
       detailsPath: "/livro/3"
     },
     {

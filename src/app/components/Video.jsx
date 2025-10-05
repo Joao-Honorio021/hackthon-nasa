@@ -120,23 +120,24 @@ export default function VideoTelaCheia({
       
       setQualidadeSelecionada(qualidade);
       setMostrarMenuQualidade(false);
+      setEstaCarregando(true);
       
       setTimeout(() => {
         video.currentTime = tempoAtualSalvo;
         if (estavaTocando) {
-          video.play();
+          video.play().catch(err => console.error('Erro ao reproduzir:', err));
         }
       }, 100);
     }
   };
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      // Apenas carrega o vídeo, não toca automaticamente
-      video.load();
-    }
-  }, []);
+  // Calcula a URL do vídeo
+  let videoSrc = gerarUrlCloudinary(qualidadeSelecionada);
+  if (daltonico && tipoDaltonismo && videosDaltonismo[tipoDaltonismo]) {
+    videoSrc = videosDaltonismo[tipoDaltonismo];
+  } else if (!daltonico && videosDaltonismo.normal) {
+    videoSrc = videosDaltonismo.normal;
+  }
 
   useEffect(() => {
     const video = videoRef.current;
@@ -146,12 +147,18 @@ export default function VideoTelaCheia({
     const atualizarDuracao = () => setDuracao(video.duration);
     const aoIniciarCarregamento = () => setEstaCarregando(true);
     const aoTerminarCarregamento = () => setEstaCarregando(false);
+    const aoTocar = () => setEstaRodando(true);
+    const aoPausar = () => setEstaRodando(false);
+    const aoTerminar = () => setEstaRodando(false);
 
     video.addEventListener('timeupdate', atualizarTempo);
     video.addEventListener('loadedmetadata', atualizarDuracao);
     video.addEventListener('waiting', aoIniciarCarregamento);
     video.addEventListener('canplay', aoTerminarCarregamento);
     video.addEventListener('playing', aoTerminarCarregamento);
+    video.addEventListener('play', aoTocar);
+    video.addEventListener('pause', aoPausar);
+    video.addEventListener('ended', aoTerminar);
 
     return () => {
       video.removeEventListener('timeupdate', atualizarTempo);
@@ -159,6 +166,9 @@ export default function VideoTelaCheia({
       video.removeEventListener('waiting', aoIniciarCarregamento);
       video.removeEventListener('canplay', aoTerminarCarregamento);
       video.removeEventListener('playing', aoTerminarCarregamento);
+      video.removeEventListener('play', aoTocar);
+      video.removeEventListener('pause', aoPausar);
+      video.removeEventListener('ended', aoTerminar);
     };
   }, []);
 
@@ -169,8 +179,11 @@ export default function VideoTelaCheia({
         video.pause();
         setEstaRodando(false);
         setMostrarControles(true);
+        if (timeoutControlesRef.current) {
+          clearTimeout(timeoutControlesRef.current);
+        }
       } else {
-        video.play();
+        video.play().catch(err => console.error('Erro ao reproduzir:', err));
         setEstaRodando(true);
       }
     }
@@ -225,13 +238,6 @@ export default function VideoTelaCheia({
     const secs = Math.floor(segundos % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  let videoSrc = gerarUrlCloudinary(qualidadeSelecionada);
-  if (daltonico && tipoDaltonismo && videosDaltonismo[tipoDaltonismo]) {
-    videoSrc = videosDaltonismo[tipoDaltonismo];
-  } else if (!daltonico && videosDaltonismo.normal) {
-    videoSrc = videosDaltonismo.normal;
-  }
 
   const filtrosDaltonismo = {
     acromatopsia: "grayscale(1)",
@@ -329,13 +335,6 @@ export default function VideoTelaCheia({
                 </div>
               </button>
             ))}
-          </div>
-
-          <div className="px-4 py-3 bg-gray-800/50 border-t border-gray-700">
-            <p className="text-xs text-gray-400 flex items-center gap-2">
-              <span>⚡</span>
-              <span>Powered by Cloudinary</span>
-            </p>
           </div>
         </div>
       )}
