@@ -4,6 +4,7 @@ import Stars from "@/app/components/Stars";
 import SearchModal from "@/app/components/SearchModal";
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
+import Footer from "@/app/components/Footer";
 
 const { default: Card } = require("@/app/components/card");
 const Heading = require("../../components/heading").default;
@@ -18,31 +19,28 @@ const Catalogo = () => {
   const livros = [
     {
       id: 1,
-      titulo: "Parte 1",
-      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      imagem: "/card2.jpg",
-      detailsPath: "./Video"
+      titulo: "The Beginning",
+      descricao: "Ravi tells Lucas about something new he learned.",
+      imagem: "/card.png",
+      // URL completa do YouTube
+      videoUrl: "https://www.youtube.com/watch?v=07fHaV5hYlc",
+      tipo: "youtube"
     },
     {
       id: 2,
-      titulo: "Parte 2",
-      descricao: "consectetur adipiscing elit. ",
-      imagem: "/card.jpg",
-      detailsPath: "/livro/2"
+      titulo: "The Blackout",
+      descricao: "Ravi and Lucas imagine a hypothetical scenario.",
+      imagem: "/card2.png",
+      videoUrl: "https://www.youtube.com/watch?v=2i_RtQ7VcDc",
+      tipo: "youtube"
     },
     {
       id: 3,
-      titulo: "Parte 3",
-      descricao: "ryrhrhfhfh",
+      titulo: "The Conclusion",
+      descricao: "Ravi and Lucas reach a conclusion.",
       imagem: "/card3.png",
-      detailsPath: "/livro/3"
-    },
-    {
-      id: 4,
-      titulo: "Parte 4",
-      descricao: "O início da saga mostra a ascensão de um herói improvável",
-      imagem: "/card.jpg",
-      detailsPath: "/livro/4"
+      videoUrl: "https://www.youtube.com/watch?v=TBxaWuubgIY",
+      tipo: "youtube"
     }
   ];
 
@@ -54,8 +52,7 @@ const Catalogo = () => {
     <div className={`min-h-screen ${cores.background}`}>
       <Stars count={250} />
       
-      <Heading>Catálogo</Heading>
-      <Menu />
+      <Heading>Catalog</Heading>
 
       <button
         onClick={() => setModalAberto(true)}
@@ -82,7 +79,8 @@ const Catalogo = () => {
                 title={livro.titulo} 
                 description={livro.descricao} 
                 image={livro.imagem}
-                detailsPath={livro.detailsPath}
+                videoUrl={livro.videoUrl}
+                tipo={livro.tipo}
               />
             ))}
           </div>
@@ -93,6 +91,10 @@ const Catalogo = () => {
           </div>
         )}
       </main>
+         <Menu />
+         <footer>
+            <Footer />
+         </footer>
     </div>
   );
 };
